@@ -2,8 +2,36 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/wall"
-        android:title="@string/wall"
-        android:icon="@drawable/ic_action_wall"
+
+    <item android:id="@+id/undo"
+        android:title="@string/undo"
+        android:icon="@drawable/ic_action_back"
         app:showAsAction="ifRoom"/>
+
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/wall_mode"
+            android:title="@string/wall_mode"
+            android:icon="@drawable/ic_wall_mode_off"
+            app:showAsAction="never"/>
+
+        <item android:id="@+id/box_mode"
+            android:title="@string/box_mode"
+            android:icon="@drawable/ic_box_mode_off"
+            app:showAsAction="never"/>
+
+        <item android:id="@+id/gate_input"
+            android:title="@string/gate_input"
+            app:showAsAction="never"/>
+        <item android:id="@+id/gate_output"
+            android:title="@string/gate_output"
+            app:showAsAction="never"/>
+
+    </group>
+
+
+    <item android:id="@+id/save"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/save"
+        app:showAsAction="never"/>
+
 </menu>

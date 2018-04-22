@@ -2,5 +2,10 @@
     <string name="app_name">ForSCAND</string>
     <string name="builder">Builder</string>
     <string name="settings">Settings</string>
-    <string name="wall">Wall</string>
+    <string name="wall_mode">Wall Mode</string>
+    <string name="save">Save</string>
+    <string name="box_mode">Box mode</string>
+    <string name="undo">Undo</string>
+    <string name="gate_input">Gate input</string>
+    <string name="gate_output">Gate output</string>
 </resources>

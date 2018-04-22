@@ -16,15 +16,4 @@ public class MainActivity extends SingleFragmentActivity {
         return MainFragment.newInstance();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.i(TAG,"onOptionsItemSelected");
-        switch (item.getItemId()){
-            case R.id.builder:
-                Log.i(TAG,getString(R.string.builder));
-                replaceFragment(BuilderFragment.newInstance());
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }

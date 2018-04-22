@@ -4,12 +4,16 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.support.annotation.Nullable;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 
+import com.katsuro.alexey.forscand.model.Box;
+import com.katsuro.alexey.forscand.model.Map;
 import com.katsuro.alexey.forscand.model.Wall;
 
 import java.util.ArrayList;
@@ -19,28 +23,27 @@ import java.util.List;
  * Created by alexey on 4/19/18.
  */
 
-public class WarehouseView extends View {
+public class StorehouseView extends View {
 
-    private static final String TAG = WarehouseView.class.getSimpleName();
-    private List<Wall> mWallList;
-    private Paint mWallPaint;
+    private static final String TAG = StorehouseView.class.getSimpleName();
+    private Map mMap = new Map();
+
     private int scale;
+    private GestureDetectorCompat mDetector;
+    private OnTouchListener mTouchListener;
 
-    public WarehouseView(Context context) {
+    public StorehouseView(Context context) {
         super(context);
         init();
     }
 
-    public WarehouseView(Context context, @Nullable AttributeSet attrs) {
+    public StorehouseView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
     public void init(){
-        mWallList = new ArrayList<>();
-        mWallPaint = new Paint();
-        mWallPaint.setStyle(Paint.Style.STROKE);
-        mWallPaint.setStrokeWidth(5);
+
     }
 
     @Override
@@ -54,17 +57,7 @@ public class WarehouseView extends View {
             drawGrid(canvas, scale);
         }
 
-
-
-        for(Wall wall: mWallList){
-
-            canvas.drawLine(
-                    wall.getStartX(),
-                    wall.getStartY(),
-                    wall.getStopX(),
-                    wall.getStopY(),
-                    mWallPaint);
-        }
+        mMap.draw(canvas);
     }
 
     private void drawGrid(Canvas canvas, int scale) {
@@ -75,7 +68,6 @@ public class WarehouseView extends View {
         paint.setStrokeWidth(1);
         paint.setColor(Color.GRAY);
 
-        Log.i(TAG,String.format("w: %d, h: %d",w,h));
         for(int x = 0; x<w;x+=scale){
             canvas.drawLine(x,0,x,h,paint);
         }
@@ -86,12 +78,12 @@ public class WarehouseView extends View {
 
     }
 
-    public List<Wall> getWallList() {
-        return mWallList;
+    public Map getMap() {
+        return mMap;
     }
 
-    public void setWallList(List<Wall> wallList) {
-        mWallList = wallList;
+    public void setMap(Map map) {
+        mMap = map;
     }
 
     public int getScale() {
@@ -101,4 +93,28 @@ public class WarehouseView extends View {
     public void setScale(int scale) {
         this.scale = scale;
     }
+
+    public void setDetector(GestureDetectorCompat detector) {
+        mDetector = detector;
+    }
+
+    @Override
+    public void setOnTouchListener(OnTouchListener l) {
+        mTouchListener = l;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        if (mDetector!=null && this.mDetector.onTouchEvent(event)) {
+            Log.i(TAG,"mDetector.onTouchEvent");
+            return true;
+        }
+        if(mTouchListener!=null&& mTouchListener.onTouch(this,event)) {
+            Log.i(TAG,"mTouchListener.onTouch");
+            return true;
+        }
+
+        return super.onTouchEvent(event);
+    }
+
 }
