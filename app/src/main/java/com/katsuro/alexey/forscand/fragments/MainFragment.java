@@ -1,4 +1,4 @@
-package com.katsuro.alexey.forscand;
+package com.katsuro.alexey.forscand.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,6 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.gson.Gson;
+import com.katsuro.alexey.forscand.activities.BuilderActivity;
+import com.katsuro.alexey.forscand.FileWriterReader;
+import com.katsuro.alexey.forscand.R;
+import com.katsuro.alexey.forscand.StorehouseView;
 import com.katsuro.alexey.forscand.model.Map;
 
 /**

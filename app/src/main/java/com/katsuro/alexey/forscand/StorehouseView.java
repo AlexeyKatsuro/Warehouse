@@ -29,8 +29,6 @@ public class StorehouseView extends View {
     private Map mMap = new Map();
 
     private int scale;
-    private GestureDetectorCompat mDetector;
-    private OnTouchListener mTouchListener;
 
     public StorehouseView(Context context) {
         super(context);
@@ -92,29 +90,6 @@ public class StorehouseView extends View {
 
     public void setScale(int scale) {
         this.scale = scale;
-    }
-
-    public void setDetector(GestureDetectorCompat detector) {
-        mDetector = detector;
-    }
-
-    @Override
-    public void setOnTouchListener(OnTouchListener l) {
-        mTouchListener = l;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event){
-        if (mDetector!=null && this.mDetector.onTouchEvent(event)) {
-            Log.i(TAG,"mDetector.onTouchEvent");
-            return true;
-        }
-        if(mTouchListener!=null&& mTouchListener.onTouch(this,event)) {
-            Log.i(TAG,"mTouchListener.onTouch");
-            return true;
-        }
-
-        return super.onTouchEvent(event);
     }
 
 }

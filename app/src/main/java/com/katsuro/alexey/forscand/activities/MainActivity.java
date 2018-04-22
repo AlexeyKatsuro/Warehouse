@@ -1,11 +1,8 @@
-package com.katsuro.alexey.forscand;
+package com.katsuro.alexey.forscand.activities;
 
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
-import android.widget.Toast;
+
+import com.katsuro.alexey.forscand.fragments.MainFragment;
 
 public class MainActivity extends SingleFragmentActivity {
 

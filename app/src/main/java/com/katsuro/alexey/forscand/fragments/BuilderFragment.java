@@ -1,4 +1,4 @@
-package com.katsuro.alexey.forscand;
+package com.katsuro.alexey.forscand.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -18,6 +18,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.gson.Gson;
+import com.katsuro.alexey.forscand.FileWriterReader;
+import com.katsuro.alexey.forscand.R;
+import com.katsuro.alexey.forscand.StorehouseView;
 import com.katsuro.alexey.forscand.model.Box;
 import com.katsuro.alexey.forscand.model.Gate;
 import com.katsuro.alexey.forscand.model.Map;
@@ -32,9 +35,10 @@ import java.util.List;
 public class BuilderFragment extends Fragment {
     public static final String TAG = BuilderFragment.class.getSimpleName();
     public static final String EXTRA_MAP = "extra_map";
-    private GestureDetectorCompat mDetectorCompat;
 
-    enum Mode{wall, box,gateInput, gateOutPut};
+    enum Mode {wall, box, gateInput, gateOutPut}
+
+    ;
 
     private Mode mCurrentMode;
 
@@ -45,7 +49,7 @@ public class BuilderFragment extends Fragment {
     private Wall mCurrentWall;
     private Box mCurrentBox;
     private Gate mCurrentGate;
-    private int scale =50;
+    private int scale = 50;
     private View.OnTouchListener mTouchListener;
     private FileWriterReader mFileWriterReader;
     private String mFileName = "MapJSON.txt";
@@ -59,7 +63,7 @@ public class BuilderFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG,"onCreate");
+        Log.i(TAG, "onCreate");
         setHasOptionsMenu(true);
         mFileWriterReader = new FileWriterReader(getActivity());
 
@@ -71,8 +75,8 @@ public class BuilderFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.i(TAG,"onCreateView");
-        View view = inflater.inflate(R.layout.fragment_warehouse,container,false);
+        Log.i(TAG, "onCreateView");
+        View view = inflater.inflate(R.layout.fragment_warehouse, container, false);
         mStorehouseView = view.findViewById(R.id.warehouse_view);
         mStorehouseView.setScale(scale);
         mStorehouseView.setMap(mMap);
@@ -83,11 +87,10 @@ public class BuilderFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        Log.i(TAG,"onCreateOptionsMenu");
-        inflater.inflate(R.menu.builder_menu,menu);
+        Log.i(TAG, "onCreateOptionsMenu");
+        inflater.inflate(R.menu.builder_menu, menu);
 
     }
-
 
 
     @Override
@@ -121,7 +124,7 @@ public class BuilderFragment extends Fragment {
                 setSubtitle(getString(R.string.gate_output));
                 return true;
 
-            case R.id.undo :
+            case R.id.undo:
                 Log.i(TAG, getString(R.string.undo));
                 onUndoClick(mCurrentMode);
                 return true;
@@ -132,7 +135,7 @@ public class BuilderFragment extends Fragment {
                 Log.i(TAG, String.format("JSON: %s", mapGsonString));
 
                 sendResultGson(mapGsonString);
-                mFileWriterReader.writeToFile(mapGsonString,mFileName);
+                mFileWriterReader.writeToFile(mapGsonString, mFileName);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -141,71 +144,71 @@ public class BuilderFragment extends Fragment {
     }
 
     private void onUndoClick(Mode currentMode) {
-        
-        if(mCurrentMode==Mode.wall){
-           List<Wall> list = mMap.getWallList();
-           int size = list.size();
-           if(size>0) {
-               list.remove(size-1);
-           }
+
+        if (currentMode == Mode.wall) {
+            List<Wall> list = mMap.getWallList();
+            int size = list.size();
+            if (size > 0) {
+                list.remove(size - 1);
+            }
         }
-        if (mCurrentMode==Mode.box){
+        if (currentMode == Mode.box) {
             List<Box> list = mMap.getBoxList();
             int size = list.size();
-            if(size>0) {
-                list.remove(size-1);
+            if (size > 0) {
+                list.remove(size - 1);
             }
         }
 
-        if (mCurrentMode==Mode.gateInput || mCurrentMode==Mode.gateOutPut){
+        if (currentMode == Mode.gateInput || currentMode == Mode.gateOutPut) {
             List<Gate> list = mMap.getGateList();
             int size = list.size();
-            if(size>0) {
-                list.remove(size-1);
+            if (size > 0) {
+                list.remove(size - 1);
             }
         }
         mStorehouseView.invalidate();
     }
 
     private void setSubtitle(String subtitle) {
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setSubtitle(subtitle);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle(subtitle);
     }
 
-    private void changeMode(Mode next){
+    private void changeMode(Mode next) {
 
         mCurrentMode = next;
 
         mTouchListener = null;
-        if(mCurrentMode==Mode.wall){
+        if (mCurrentMode == Mode.wall) {
             mTouchListener = new WallTouchListener();
         }
-        if (mCurrentMode==Mode.box){
+        if (mCurrentMode == Mode.box) {
             mTouchListener = new BoxTouchListener();
         }
 
-        if(mCurrentMode==Mode.gateInput){
+        if (mCurrentMode == Mode.gateInput) {
             mTouchListener = new GateTouchListener(Gate.Type.input);
         }
 
-        if(mCurrentMode==Mode.gateOutPut){
+        if (mCurrentMode == Mode.gateOutPut) {
             mTouchListener = new GateTouchListener(Gate.Type.output);
         }
 
-        mStorehouseView.setDetector(mDetectorCompat);
         mStorehouseView.setOnTouchListener(mTouchListener);
     }
-    private int roundToScale(float value, int scale, boolean sumRemainder){
+
+    private int roundToScale(float value, int scale, boolean sumRemainder) {
         value = Math.round(value);
-        int r = (int) value%scale;
+        int r = (int) value % scale;
         int result = (int) (value - r);
-        if(sumRemainder) {
+        if (sumRemainder) {
             result += r >= scale / 2 ? scale : 0;
         }
         return result;
 
     }
 
-    private void sendResultGson(String gsonString){
+    private void sendResultGson(String gsonString) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra(EXTRA_MAP, gsonString);
         getActivity().setResult(Activity.RESULT_OK, resultIntent);
@@ -213,33 +216,33 @@ public class BuilderFragment extends Fragment {
     }
 
 
-    public class WallTouchListener implements View.OnTouchListener{
+    public class WallTouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            Log.i(TAG,"OnTouch");
+            Log.i(TAG, "OnTouch");
             StorehouseView view = (StorehouseView) v;
-            Log.i(TAG,String.format("x: %f, y: %f",event.getX(),event.getY()));
-            float x = roundToScale(event.getX(),scale,true);
-            float y = roundToScale(event.getY(),scale,true);
+            Log.i(TAG, String.format("x: %f, y: %f", event.getX(), event.getY()));
+            float x = roundToScale(event.getX(), scale, true);
+            float y = roundToScale(event.getY(), scale, true);
 
-            switch (event.getAction()){
+            switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     Log.i(TAG, "ACTION_DOWN");
                     mCurrentWall = new Wall();
                     mMap.getWallList().add(mCurrentWall);
-                    mCurrentWall.setStart(x,y);
-                    mCurrentWall.setStop(x,y);
+                    mCurrentWall.setStart(x, y);
+                    mCurrentWall.setStop(x, y);
                     return true;
 
                 case MotionEvent.ACTION_MOVE:
-                    Log.i(TAG,"ACTION_MOVE");
-                    mCurrentWall.setStop(x,y);
+                    Log.i(TAG, "ACTION_MOVE");
+                    mCurrentWall.setStop(x, y);
                     view.invalidate();
                     return true;
 
                 case MotionEvent.ACTION_UP:
                     Log.i(TAG, "ACTION_UP");
-                    mCurrentWall.setStop(x,y);
+                    mCurrentWall.setStop(x, y);
                     view.invalidate();
                     mCurrentWall = null;
                     return true;
@@ -250,38 +253,39 @@ public class BuilderFragment extends Fragment {
         }
     }
 
-    public class BoxTouchListener implements View.OnTouchListener{
+    public class BoxTouchListener implements View.OnTouchListener {
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            Log.i(TAG,"OnTouch");
+            Log.i(TAG, "OnTouch");
             StorehouseView view = (StorehouseView) v;
-            Log.i(TAG,String.format("x: %f, y: %f",event.getX(),event.getY()));
-            float x = roundToScale(event.getX(),scale,false);
-            float y = roundToScale(event.getY(),scale,false);
+            Log.i(TAG, String.format("x: %f, y: %f", event.getX(), event.getY()));
+            float x = roundToScale(event.getX(), scale, false);
+            float y = roundToScale(event.getY(), scale, false);
 
 
-            switch (event.getAction()){
+            switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     Log.i(TAG, "ACTION_DOWN");
                     mCurrentBox = new Box();
                     mCurrentBox.setWidth(scale);
                     mCurrentBox.setHeight(scale);
-                    mCurrentBox.setPosition(x,y);
+                    mCurrentBox.setPosition(x, y);
                     mMap.getBoxList().add(mCurrentBox);
                     view.invalidate();
                     return true;
 
                 case MotionEvent.ACTION_MOVE:
-                    Log.i(TAG,"ACTION_MOVE");
-                    mCurrentBox.setPosition(x,y);
+                    Log.i(TAG, "ACTION_MOVE");
+                    mCurrentBox.setPosition(x, y);
                     view.invalidate();
                     return true;
 
                 case MotionEvent.ACTION_UP:
                     Log.i(TAG, "ACTION_UP");
-                    mCurrentBox.setPosition(x,y);
-                    view.invalidate();;
+                    mCurrentBox.setPosition(x, y);
+                    view.invalidate();
+                    ;
                     mCurrentBox = null;
                     return true;
 
@@ -291,7 +295,7 @@ public class BuilderFragment extends Fragment {
         }
     }
 
-    public class GateTouchListener implements View.OnTouchListener{
+    public class GateTouchListener implements View.OnTouchListener {
         private Gate.Type mType;
 
         public GateTouchListener(Gate.Type type) {
@@ -300,30 +304,30 @@ public class BuilderFragment extends Fragment {
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            Log.i(TAG,"OnTouch");
+            Log.i(TAG, "OnTouch");
             StorehouseView view = (StorehouseView) v;
-            Log.i(TAG,String.format("x: %f, y: %f",event.getX(),event.getY()));
-            float x = roundToScale(event.getX(),scale,true);
-            float y = roundToScale(event.getY(),scale,true);
+            Log.i(TAG, String.format("x: %f, y: %f", event.getX(), event.getY()));
+            float x = roundToScale(event.getX(), scale, true);
+            float y = roundToScale(event.getY(), scale, true);
 
-            switch (event.getAction()){
+            switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     Log.i(TAG, "ACTION_DOWN");
                     mCurrentGate = new Gate(mType);
                     mMap.getGateList().add(mCurrentGate);
-                    mCurrentGate.setStart(x,y);
-                    mCurrentGate.setStop(x,y);
+                    mCurrentGate.setStart(x, y);
+                    mCurrentGate.setStop(x, y);
                     return true;
 
                 case MotionEvent.ACTION_MOVE:
-                    Log.i(TAG,"ACTION_MOVE");
-                    mCurrentGate.setStop(x,y);
+                    Log.i(TAG, "ACTION_MOVE");
+                    mCurrentGate.setStop(x, y);
                     view.invalidate();
                     return true;
 
                 case MotionEvent.ACTION_UP:
                     Log.i(TAG, "ACTION_UP");
-                    mCurrentGate.setStop(x,y);
+                    mCurrentGate.setStop(x, y);
                     view.invalidate();
                     mCurrentGate = null;
                     return true;
@@ -334,42 +338,4 @@ public class BuilderFragment extends Fragment {
         }
     }
 
-    private class WallModeGestureDetector extends GestureDetector.SimpleOnGestureListener
-        implements GestureDetector.OnDoubleTapListener
-    {
-
-        @Override
-        public void onLongPress(MotionEvent event) {
-            Log.d(TAG, "onLongPress: " + event.toString());
-        }
-
-        @Override
-        public void onShowPress(MotionEvent event) {
-            Log.d(TAG, "onShowPress: " + event.toString());
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent event) {
-            Log.d(TAG, "onSingleTapUp: " + event.toString());
-            return true;
-        }
-
-        @Override
-        public boolean onDoubleTap(MotionEvent event) {
-            Log.d(TAG, "onDoubleTap: " + event.toString());
-            return true;
-        }
-
-        @Override
-        public boolean onDoubleTapEvent(MotionEvent event) {
-            Log.d(TAG, "onDoubleTapEvent: " + event.toString());
-            return true;
-        }
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent event) {
-            Log.d(TAG, "onSingleTapConfirmed: " + event.toString());
-            return true;
-        }
-    }
 }
