@@ -20,10 +20,7 @@
             app:showAsAction="never"/>
 
         <item android:id="@+id/gate_input"
-            android:title="@string/gate_input"
-            app:showAsAction="never"/>
-        <item android:id="@+id/gate_output"
-            android:title="@string/gate_output"
+            android:title="@string/gate_mode"
             app:showAsAction="never"/>
 
     </group>
@@ -32,6 +29,9 @@
     <item android:id="@+id/save"
         android:icon="@android:drawable/ic_menu_save"
         android:title="@string/save"
+        app:showAsAction="never"/>
+    <item android:id="@+id/load"
+        android:title="@string/load"
         app:showAsAction="never"/>
 
 </menu>

@@ -11,7 +11,7 @@ import android.graphics.PointF;
 public class Wall implements Drawable{
     private PointF start;
     private PointF stop;
-    private Paint mPaint;
+    private transient Paint mPaint;
 
 
     public Wall() {
@@ -88,5 +88,13 @@ public class Wall implements Drawable{
 
     public void setPaint(Paint paint) {
         mPaint = paint;
+    }
+
+    @Override
+    public String toString() {
+        return "Wall{" +
+                "start=" + start +
+                ", stop=" + stop +
+                '}';
     }
 }

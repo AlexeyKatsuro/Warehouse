@@ -21,9 +21,12 @@ public class Map implements Drawable {
     @SerializedName("gateList")
     private List<Gate> mGateList = new ArrayList<>();
 
+    private int mScale = 50;
+
     public List<Wall> getWallList() {
         return mWallList;
     }
+
 
     public void setWallList(List<Wall> wallList) {
         mWallList = wallList;
@@ -59,5 +62,11 @@ public class Map implements Drawable {
             gate.draw(canvas);
         }
 
+
     }
+
+    public int getScale() {
+        return mScale;
+    }
+
 }

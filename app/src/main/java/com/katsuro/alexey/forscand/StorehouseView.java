@@ -14,6 +14,8 @@ import android.view.View;
 
 import com.katsuro.alexey.forscand.model.Box;
 import com.katsuro.alexey.forscand.model.Map;
+import com.katsuro.alexey.forscand.model.Robot;
+import com.katsuro.alexey.forscand.model.Trail;
 import com.katsuro.alexey.forscand.model.Wall;
 
 import java.util.ArrayList;
@@ -27,35 +29,37 @@ public class StorehouseView extends View {
 
     private static final String TAG = StorehouseView.class.getSimpleName();
     private Map mMap = new Map();
-
-    private int scale;
+    private List<Robot> mRobotList = new ArrayList<>();
+    private Trail mTrail;
 
     public StorehouseView(Context context) {
         super(context);
-        init();
     }
 
     public StorehouseView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init();
-    }
-
-    public void init(){
-
-    }
-
-    @Override
-    public boolean performClick() {
-        return super.performClick();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if(scale>=5) {
-            drawGrid(canvas, scale);
+        if(mMap==null){
+            return;
+        }
+
+        if(mMap.getScale()>=5) {
+            drawGrid(canvas, mMap.getScale());
+        }
+
+        for(Robot robot : mRobotList){
+            robot.draw(canvas);
+        }
+        if(mTrail!=null) {
+            mTrail.draw(canvas);
         }
 
         mMap.draw(canvas);
+
+
     }
 
     private void drawGrid(Canvas canvas, int scale) {
@@ -84,12 +88,15 @@ public class StorehouseView extends View {
         mMap = map;
     }
 
-    public int getScale() {
-        return scale;
+    public List<Robot> getRobotList() {
+        return mRobotList;
     }
 
-    public void setScale(int scale) {
-        this.scale = scale;
+    public void setRobotList(List<Robot> robotList) {
+        mRobotList = robotList;
     }
 
+    public void setTrail(Trail trail) {
+        mTrail = trail;
+    }
 }

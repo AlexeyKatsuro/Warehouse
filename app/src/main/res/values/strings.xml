@@ -8,4 +8,7 @@
     <string name="undo">Undo</string>
     <string name="gate_input">Gate input</string>
     <string name="gate_output">Gate output</string>
+    <string name="start">Start</string>
+    <string name="load">Load</string>
+    <string name="gate_mode">Gate mode</string>
 </resources>

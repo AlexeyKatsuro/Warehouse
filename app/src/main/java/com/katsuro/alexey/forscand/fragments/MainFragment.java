@@ -2,7 +2,9 @@ package com.katsuro.alexey.forscand.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.PointF;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -18,7 +20,14 @@ import com.katsuro.alexey.forscand.activities.BuilderActivity;
 import com.katsuro.alexey.forscand.FileWriterReader;
 import com.katsuro.alexey.forscand.R;
 import com.katsuro.alexey.forscand.StorehouseView;
+import com.katsuro.alexey.forscand.commands.Command;
+import com.katsuro.alexey.forscand.commands.MoveAlongTrail;
+import com.katsuro.alexey.forscand.commands.MoveCommand;
+import com.katsuro.alexey.forscand.model.Gate;
 import com.katsuro.alexey.forscand.model.Map;
+import com.katsuro.alexey.forscand.model.Robot;
+import com.katsuro.alexey.forscand.model.Trail;
+import com.katsuro.alexey.forscand.model.Wall;
 
 /**
  * Created by alexey on 4/19/18.
@@ -31,10 +40,10 @@ public class MainFragment extends Fragment  {
 
     private StorehouseView mStorehouseView;
 
-    private Map mMap = new Map();
+    private Map mMap;
     private Gson mGson = new Gson();
     private FileWriterReader mFileWriterReader;
-    private String mFileName = "MapJSON.txt";
+    private String mDefaultMapFileName = "MapDefault.txt";
 
     public interface callBacks{
 
@@ -51,10 +60,12 @@ public class MainFragment extends Fragment  {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mFileWriterReader = new FileWriterReader(getActivity());
-//        String stringJSON = mFileWriterReader.readFromFile(mFileName);
-//        if(stringJSON!=null) {
-//            mMap = mGson.fromJson(stringJSON, Map.class);
-//        }
+
+        String gsonString = mFileWriterReader.readFromFile(mDefaultMapFileName);
+        if(gsonString!=null) {
+            mMap = mGson.fromJson(gsonString, Map.class);
+        }
+
     }
 
     @Override
@@ -62,8 +73,20 @@ public class MainFragment extends Fragment  {
         View view = inflater.inflate(R.layout.fragment_warehouse,container,false);
         mStorehouseView = view.findViewById(R.id.warehouse_view);
         mStorehouseView.setMap(mMap);
+
+        if(mMap.getGateList().size()>=2) {
+            Gate gateStart = mMap.getGateList().get(0);
+            Gate gateEnd = mMap.getGateList().get(1);
+
+            Robot robot= new Robot(gateStart, mMap);
+            mStorehouseView.getRobotList().clear();
+            mStorehouseView.getRobotList().add(robot);
+        }
+
         return view;
     }
+
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -76,6 +99,10 @@ public class MainFragment extends Fragment  {
         Log.i(TAG,"onOptionsItemSelected");
         switch (item.getItemId()){
 
+            case R.id.start:
+                Log.i(TAG,getString(R.string.start));
+                start();
+                return true;
             case R.id.builder:
                 Log.i(TAG,getString(R.string.builder));
                 Intent intent = new Intent(getActivity(),BuilderActivity.class);
@@ -88,6 +115,28 @@ public class MainFragment extends Fragment  {
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    private synchronized void updateUI(){
+        mStorehouseView.invalidate();
+    }
+
+    private void start() {
+        Gate gateStart = mMap.getGateList().get(0);
+        Gate gateEnd = mMap.getGateList().get(1);
+        Robot robot = mStorehouseView.getRobotList().get(0);
+        Trail trail = getTrail(gateStart.getPosition(), gateEnd.getPosition());
+        Command command = new MoveAlongTrail(robot, trail, mStorehouseView, new Handler());
+        robot.addCommand(command);
+
+
+    }
+
+    private Trail getTrail(PointF start, PointF end) {
+        Trail trail = new Trail(start);
+        trail.lineTo(mMap.getBoxList().get(0).getPosition());
+        trail.lineTo(end);
+        return trail;
     }
 
     @Override
@@ -107,6 +156,48 @@ public class MainFragment extends Fragment  {
             mMap = mGson.fromJson(gsonString,Map.class);
             mStorehouseView.setMap(mMap);
             mStorehouseView.invalidate();
+        }
+    }
+
+    public boolean isTrailPartsIntersected(Trail trail, Wall wall){
+        for (int i=0;i<trail.length()-1;i++){
+            if(isLinePartsIntersected(trail.get(i),trail.get(i+1),wall.getStart(),wall.getStop())){
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    public boolean isLinePartsIntersected(PointF a, PointF b, PointF c, PointF d)
+    {
+        double common = (b.x - a.x)*(d.y - c.y) - (b.y- a.y)*(d.x - c.x);
+        if (common == 0) return false;
+        double rH = (a.y - c.y)*(d.x - c.x) - (a.x - c.x)*(d.y - c.y);
+        double sH = (a.y - c.y)*(b.x - a.x) - (a.x - c.x)*(b.y - a.y);
+
+        double r = rH / common;
+        double s = sH / common;
+
+        if (r >= 0 && r <= 1 && s >= 0 && s <= 1)
+            return true;
+        else
+            return false;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        for (Robot robot :mStorehouseView.getRobotList() ){
+            robot.quit();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        for (Robot robot :mStorehouseView.getRobotList() ){
+            robot.claerQueue();
         }
     }
 }

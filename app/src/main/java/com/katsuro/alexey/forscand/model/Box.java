@@ -12,12 +12,17 @@ import android.graphics.Rect;
 
 public class Box implements Drawable{
 
-    private PointF mPosition = new PointF();
-    private float width;
-    private float height;
-    private Paint mPaint;
+    protected PointF mPosition = new PointF();
+    protected float width;
+    protected float height;
+    protected transient Paint mPaint;
+    protected float margin = 8;
 
     public Box() {
+        init();
+    }
+
+    protected void init() {
         mPaint = new Paint();
         mPaint.setColor(Color.RED);
     }
@@ -81,14 +86,46 @@ public class Box implements Drawable{
 
     public Rect getRect(){
         return new Rect(
-                (int) mPosition.x,
-                (int) mPosition.y,
-                (int) (mPosition.x+width),
-                (int) (mPosition.y+height));
+                (int) (mPosition.x-width/2),
+                (int) (mPosition.y-width/2),
+                (int) (mPosition.x+width/2),
+                (int) (mPosition.y+height/2));
     }
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawRect(getRect(),mPaint);
+        Rect rect = getRect();
+        rect.bottom-=margin;
+        rect.top+=margin;
+        rect.left+=margin;
+        rect.right-=margin;
+
+        canvas.drawRect(rect,mPaint);
+    }
+
+    public Paint getPaint() {
+        return mPaint;
+    }
+
+    public void setPaint(Paint paint) {
+        mPaint = paint;
+    }
+
+    public float getMargin() {
+        return margin;
+    }
+
+    public void setMargin(float margin) {
+        this.margin = margin;
+    }
+
+    @Override
+    public String toString() {
+        return "Box{" +
+                "mPosition=" + mPosition +
+                ", width=" + width +
+                ", height=" + height +
+                ", margin=" + margin +
+                '}';
     }
 }

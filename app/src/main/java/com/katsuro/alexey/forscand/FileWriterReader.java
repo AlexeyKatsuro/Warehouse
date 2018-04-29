@@ -36,9 +36,10 @@ public class FileWriterReader {
 
         try {
             File file = getStorageDir(mContext,fileName);
-            BufferedWriter bufferedWriter =  new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write(data);
-            bufferedWriter.close();
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(data.getBytes());
+            fileOutputStream.close();
+
             Log.i(TAG, "File was saved in " + file.getAbsolutePath());
         }
         catch (IOException e) {
@@ -66,8 +67,10 @@ public class FileWriterReader {
         }
         catch (FileNotFoundException e) {
             Log.e(TAG, "File not found: " + e.toString());
+            e.printStackTrace();
         } catch (IOException e) {
             Log.e(TAG, "Can not read file: " + e.toString());
+            e.printStackTrace();
         }
 
         return result;
@@ -83,10 +86,12 @@ public class FileWriterReader {
 
     public File getStorageDir(Context context,String fileName) {
 
-            File externalFilesDir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-            if (externalFilesDir == null) {
+        String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString();
+        File myDir = new File(root + "/saved_maps");
+        myDir.mkdirs();
+            if (myDir == null) {
                 return null;
             }
-            return new File(externalFilesDir, fileName);
+            return new File(myDir, fileName);
     }
 }

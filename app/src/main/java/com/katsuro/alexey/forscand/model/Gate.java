@@ -4,50 +4,72 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.graphics.Rect;
 
 /**
  * Created by alexey on 4/22/18.
  */
 
-public class Gate extends Wall implements Drawable{
+public class Gate implements Drawable{
 
-    public enum Type{input,output}
 
-    private Type mType;
+    private PointF mPosition = new PointF();
+    private float width;
 
-    public Gate(Type type) {
-        super();
-        init(type);
+    private transient Paint mPaintLine;
+
+    public Gate() {
+        mPaintLine = new Paint();
+
+        mPaintLine.setStyle(Paint.Style.STROKE);
+        mPaintLine.setColor(Color.BLUE);
+        mPaintLine.setStrokeWidth(5);
     }
 
-    private void init(Type type) {
-        mType = type;
-        if(mType== Type.input) {
-            getPaint().setColor(Color.MAGENTA);
-        }
-
-        if (mType== Type.output){
-            getPaint().setColor(Color.BLUE);
-        }
-        getPaint().setStrokeWidth(getPaint().getStrokeWidth()*2);
+    public Gate(PointF position, float width) {
+        this();
+        mPosition = position;
+        this.width =width;
     }
 
-    public Gate(PointF start, PointF stop, Type type) {
-        super(start, stop);
-        init(type);
-
+    @Override
+    public void draw(Canvas canvas) {
+        canvas.drawLine(mPosition.x-width/2,mPosition.y-width/2,
+                mPosition.x+width/2,mPosition.y-width/2,mPaintLine);
+        canvas.drawLine(mPosition.x-width/2,mPosition.y+width/2,
+                mPosition.x+width/2,mPosition.y+width/2,mPaintLine);
     }
 
-    public Gate(float startX, float startY, float stopX, float stopY,Type type) {
-        super(startX, startY, stopX, stopY);
-        init(type);
+    public Rect getRect(){
+        return new Rect(
+                (int) ((int) mPosition.x),
+                (int) mPosition.y,
+                (int) (mPosition.x+width/2),
+                (int) (mPosition.y+width));
     }
 
-    public Type getType() {
-        return mType;
+    public PointF getPosition() {
+        return mPosition;
     }
 
-    public void setType(Type type) {
-        mType = type;
+    public void setPosition(PointF position) {
+        mPosition = position;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public void setWidth(float width) {
+        this.width = width;
+    }
+
+
+    public Paint getPaintLine() {
+        return mPaintLine;
+    }
+
+    public void setPaintLine(Paint paintLine) {
+        mPaintLine = paintLine;
     }
 }

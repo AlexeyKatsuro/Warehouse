@@ -2,13 +2,12 @@ package com.katsuro.alexey.forscand.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,9 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.gson.Gson;
+import com.katsuro.alexey.forscand.buildModes.BoxBuildMode;
+import com.katsuro.alexey.forscand.buildModes.BuildMode;
 import com.katsuro.alexey.forscand.FileWriterReader;
 import com.katsuro.alexey.forscand.R;
 import com.katsuro.alexey.forscand.StorehouseView;
+import com.katsuro.alexey.forscand.buildModes.GateBuildMode;
+import com.katsuro.alexey.forscand.buildModes.WallBuildMode;
 import com.katsuro.alexey.forscand.model.Box;
 import com.katsuro.alexey.forscand.model.Gate;
 import com.katsuro.alexey.forscand.model.Map;
@@ -40,7 +43,6 @@ public class BuilderFragment extends Fragment {
 
     ;
 
-    private Mode mCurrentMode;
 
 
     Gson mGson = new Gson();
@@ -49,10 +51,10 @@ public class BuilderFragment extends Fragment {
     private Wall mCurrentWall;
     private Box mCurrentBox;
     private Gate mCurrentGate;
-    private int scale = 50;
-    private View.OnTouchListener mTouchListener;
+
+    private BuildMode mBuildMode;
     private FileWriterReader mFileWriterReader;
-    private String mFileName = "MapJSON.txt";
+    private String mFileDefaultMapName = "MapDefault.txt";
 
     public static BuilderFragment newInstance() {
 
@@ -67,10 +69,7 @@ public class BuilderFragment extends Fragment {
         setHasOptionsMenu(true);
         mFileWriterReader = new FileWriterReader(getActivity());
 
-//        String stringJSON = mFileWriterReader.readFromFile(mFileName);
-//        if(stringJSON!=null) {
-//            mMap = mGson.fromJson(stringJSON, Map.class);
-//        }
+
     }
 
     @Override
@@ -78,9 +77,8 @@ public class BuilderFragment extends Fragment {
         Log.i(TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_warehouse, container, false);
         mStorehouseView = view.findViewById(R.id.warehouse_view);
-        mStorehouseView.setScale(scale);
         mStorehouseView.setMap(mMap);
-
+        mBuildMode = new WallBuildMode(getActivity(),mMap);
         return view;
     }
 
@@ -92,81 +90,84 @@ public class BuilderFragment extends Fragment {
 
     }
 
+    protected void updateUI(){
+        setSubtitle(mBuildMode.getTitle());
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.i(TAG, "onOptionsItemSelected");
+        Log.d(TAG, "onOptionsItemSelected");
         boolean isChecked;
         switch (item.getItemId()) {
             case R.id.wall_mode:
-                Log.i(TAG, getString(R.string.wall_mode));
-                changeMode(Mode.wall);
+                Log.d(TAG, getString(R.string.wall_mode));
+                changeMode(new WallBuildMode(getActivity(),mMap));
                 item.setChecked(true);
-                setSubtitle(getString(R.string.wall_mode));
+                updateUI();
                 return true;
             case R.id.box_mode:
-                Log.i(TAG, getString(R.string.box_mode));
-                changeMode(Mode.box);
+                Log.d(TAG, getString(R.string.box_mode));
+                changeMode(new BoxBuildMode(getActivity(),mMap));
                 item.setChecked(true);
-                setSubtitle(getString(R.string.box_mode));
+                updateUI();
                 return true;
             case R.id.gate_input:
-                Log.i(TAG, getString(R.string.gate_input));
+                Log.d(TAG, getString(R.string.gate_mode));
                 item.setChecked(true);
-                changeMode(Mode.box);
-                changeMode(Mode.gateInput);
-                setSubtitle(getString(R.string.gate_input));
+                changeMode(new GateBuildMode(getActivity(),mMap));
+                updateUI();
                 return true;
-            case R.id.gate_output:
-                Log.i(TAG, getString(R.string.gate_output));
-                item.setChecked(true);
-                changeMode(Mode.gateOutPut);
-                setSubtitle(getString(R.string.gate_output));
-                return true;
+
 
             case R.id.undo:
                 Log.i(TAG, getString(R.string.undo));
-                onUndoClick(mCurrentMode);
+                onUndoClick(mBuildMode);
                 return true;
 
             case R.id.save:
                 Log.i(TAG, getString(R.string.save));
                 String mapGsonString = mGson.toJson(mMap);
                 Log.i(TAG, String.format("JSON: %s", mapGsonString));
-
                 sendResultGson(mapGsonString);
-                mFileWriterReader.writeToFile(mapGsonString, mFileName);
+                mFileWriterReader.writeToFile(mapGsonString, mFileDefaultMapName);
                 return true;
+            case R.id.load:
+                Log.i(TAG, getString(R.string.load));
+
+                mMap = loadDefaultMap();
+                mStorehouseView.setMap(mMap);
+                mBuildMode.setMap(mMap);
+                mStorehouseView.invalidate();
+
             default:
                 return super.onOptionsItemSelected(item);
         }
 
     }
 
-    private void onUndoClick(Mode currentMode) {
+    protected Map loadDefaultMap() {
+        Log.i(TAG,"loadDefaultMap");
+        String stringJSON = mFileWriterReader.readFromFile(mFileDefaultMapName);
+        Log.i(TAG,"loaded: " + stringJSON);
+        Map map =null;
+        if (stringJSON != null) {
+            map = new Gson().fromJson(stringJSON, Map.class);
+            Log.i(TAG,mMap.toString());
 
-        if (currentMode == Mode.wall) {
-            List<Wall> list = mMap.getWallList();
-            int size = list.size();
-            if (size > 0) {
-                list.remove(size - 1);
-            }
         }
-        if (currentMode == Mode.box) {
-            List<Box> list = mMap.getBoxList();
-            int size = list.size();
-            if (size > 0) {
-                list.remove(size - 1);
-            }
+        return map;
+    }
+
+    private void onUndoClick(BuildMode buildMode) {
+
+
+        List<?> list = buildMode.getObjectList();
+        int size = list.size();
+        if (size > 0) {
+            list.remove(size - 1);
         }
 
-        if (currentMode == Mode.gateInput || currentMode == Mode.gateOutPut) {
-            List<Gate> list = mMap.getGateList();
-            int size = list.size();
-            if (size > 0) {
-                list.remove(size - 1);
-            }
-        }
         mStorehouseView.invalidate();
     }
 
@@ -174,39 +175,13 @@ public class BuilderFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle(subtitle);
     }
 
-    private void changeMode(Mode next) {
+    private void changeMode(BuildMode buildMode) {
 
-        mCurrentMode = next;
-
-        mTouchListener = null;
-        if (mCurrentMode == Mode.wall) {
-            mTouchListener = new WallTouchListener();
-        }
-        if (mCurrentMode == Mode.box) {
-            mTouchListener = new BoxTouchListener();
-        }
-
-        if (mCurrentMode == Mode.gateInput) {
-            mTouchListener = new GateTouchListener(Gate.Type.input);
-        }
-
-        if (mCurrentMode == Mode.gateOutPut) {
-            mTouchListener = new GateTouchListener(Gate.Type.output);
-        }
-
-        mStorehouseView.setOnTouchListener(mTouchListener);
+        mBuildMode = buildMode;
+        mStorehouseView.setOnTouchListener(mBuildMode.OnTouchListener());
     }
 
-    private int roundToScale(float value, int scale, boolean sumRemainder) {
-        value = Math.round(value);
-        int r = (int) value % scale;
-        int result = (int) (value - r);
-        if (sumRemainder) {
-            result += r >= scale / 2 ? scale : 0;
-        }
-        return result;
 
-    }
 
     private void sendResultGson(String gsonString) {
         Intent resultIntent = new Intent();
@@ -215,127 +190,22 @@ public class BuilderFragment extends Fragment {
         getActivity().finish();
     }
 
+    public static boolean IsLinePartsIntersected(PointF a, PointF b, PointF c, PointF d)
+    {
+        double common = (b.x - a.x)*(d.y - c.y) - (b.y- a.y)*(d.x - c.x);
 
-    public class WallTouchListener implements View.OnTouchListener {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            Log.i(TAG, "OnTouch");
-            StorehouseView view = (StorehouseView) v;
-            Log.i(TAG, String.format("x: %f, y: %f", event.getX(), event.getY()));
-            float x = roundToScale(event.getX(), scale, true);
-            float y = roundToScale(event.getY(), scale, true);
+        if (common == 0) return false;
 
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    Log.i(TAG, "ACTION_DOWN");
-                    mCurrentWall = new Wall();
-                    mMap.getWallList().add(mCurrentWall);
-                    mCurrentWall.setStart(x, y);
-                    mCurrentWall.setStop(x, y);
-                    return true;
+        double rH = (a.y - c.y)*(d.x - c.x) - (a.x - c.x)*(d.y - c.y);
+        double sH = (a.y - c.y)*(b.x - a.x) - (a.x - c.x)*(b.y - a.y);
 
-                case MotionEvent.ACTION_MOVE:
-                    Log.i(TAG, "ACTION_MOVE");
-                    mCurrentWall.setStop(x, y);
-                    view.invalidate();
-                    return true;
+        double r = rH / common;
+        double s = sH / common;
 
-                case MotionEvent.ACTION_UP:
-                    Log.i(TAG, "ACTION_UP");
-                    mCurrentWall.setStop(x, y);
-                    view.invalidate();
-                    mCurrentWall = null;
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
-    }
-
-    public class BoxTouchListener implements View.OnTouchListener {
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            Log.i(TAG, "OnTouch");
-            StorehouseView view = (StorehouseView) v;
-            Log.i(TAG, String.format("x: %f, y: %f", event.getX(), event.getY()));
-            float x = roundToScale(event.getX(), scale, false);
-            float y = roundToScale(event.getY(), scale, false);
-
-
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    Log.i(TAG, "ACTION_DOWN");
-                    mCurrentBox = new Box();
-                    mCurrentBox.setWidth(scale);
-                    mCurrentBox.setHeight(scale);
-                    mCurrentBox.setPosition(x, y);
-                    mMap.getBoxList().add(mCurrentBox);
-                    view.invalidate();
-                    return true;
-
-                case MotionEvent.ACTION_MOVE:
-                    Log.i(TAG, "ACTION_MOVE");
-                    mCurrentBox.setPosition(x, y);
-                    view.invalidate();
-                    return true;
-
-                case MotionEvent.ACTION_UP:
-                    Log.i(TAG, "ACTION_UP");
-                    mCurrentBox.setPosition(x, y);
-                    view.invalidate();
-                    ;
-                    mCurrentBox = null;
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
-    }
-
-    public class GateTouchListener implements View.OnTouchListener {
-        private Gate.Type mType;
-
-        public GateTouchListener(Gate.Type type) {
-            mType = type;
-        }
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            Log.i(TAG, "OnTouch");
-            StorehouseView view = (StorehouseView) v;
-            Log.i(TAG, String.format("x: %f, y: %f", event.getX(), event.getY()));
-            float x = roundToScale(event.getX(), scale, true);
-            float y = roundToScale(event.getY(), scale, true);
-
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    Log.i(TAG, "ACTION_DOWN");
-                    mCurrentGate = new Gate(mType);
-                    mMap.getGateList().add(mCurrentGate);
-                    mCurrentGate.setStart(x, y);
-                    mCurrentGate.setStop(x, y);
-                    return true;
-
-                case MotionEvent.ACTION_MOVE:
-                    Log.i(TAG, "ACTION_MOVE");
-                    mCurrentGate.setStop(x, y);
-                    view.invalidate();
-                    return true;
-
-                case MotionEvent.ACTION_UP:
-                    Log.i(TAG, "ACTION_UP");
-                    mCurrentGate.setStop(x, y);
-                    view.invalidate();
-                    mCurrentGate = null;
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
+        if (r >= 0 && r <= 1 && s >= 0 && s <= 1)
+            return true;
+        else
+            return false;
     }
 
 }
