@@ -48,13 +48,17 @@ public class Robot extends Box{
     }
 
     public void takeBox(Box box){
-        mTakenBox = box;
-        mTakenBox.setPosition(mPosition);
+        if(box.getPosition().equals(getPosition())) {
+            mTakenBox = box;
+            mTakenBox.setPosition(mPosition);
+        }
     }
 
     public void putBox(){
-        mTakenBox.setPosition(mPosition);
-        mTakenBox = null;
+        if(mTakenBox!=null) {
+            mTakenBox.setPosition(mPosition);
+            mTakenBox = null;
+        }
     }
     public void quit() {
         mCommandHandler.quit();
@@ -67,6 +71,12 @@ public class Robot extends Box{
 
     public void addCommand(Command command){
         mCommandHandler.queueCommand(command);
+    }
+
+    public void addCommands(List<Command> commands){
+        for(Command command : commands){
+            addCommand(command);
+        }
     }
 
 }

@@ -78,7 +78,8 @@ public class BuilderFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_warehouse, container, false);
         mStorehouseView = view.findViewById(R.id.warehouse_view);
         mStorehouseView.setMap(mMap);
-        mBuildMode = new WallBuildMode(getActivity(),mMap);
+        changeMode(new WallBuildMode(getActivity(),mMap));
+        updateUI();
         return view;
     }
 
@@ -87,7 +88,6 @@ public class BuilderFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
         Log.i(TAG, "onCreateOptionsMenu");
         inflater.inflate(R.menu.builder_menu, menu);
-
     }
 
     protected void updateUI(){
@@ -188,24 +188,6 @@ public class BuilderFragment extends Fragment {
         resultIntent.putExtra(EXTRA_MAP, gsonString);
         getActivity().setResult(Activity.RESULT_OK, resultIntent);
         getActivity().finish();
-    }
-
-    public static boolean IsLinePartsIntersected(PointF a, PointF b, PointF c, PointF d)
-    {
-        double common = (b.x - a.x)*(d.y - c.y) - (b.y- a.y)*(d.x - c.x);
-
-        if (common == 0) return false;
-
-        double rH = (a.y - c.y)*(d.x - c.x) - (a.x - c.x)*(d.y - c.y);
-        double sH = (a.y - c.y)*(b.x - a.x) - (a.x - c.x)*(b.y - a.y);
-
-        double r = rH / common;
-        double s = sH / common;
-
-        if (r >= 0 && r <= 1 && s >= 0 && s <= 1)
-            return true;
-        else
-            return false;
     }
 
 }

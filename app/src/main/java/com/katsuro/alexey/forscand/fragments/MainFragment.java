@@ -3,6 +3,7 @@ package com.katsuro.alexey.forscand.fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -16,18 +17,25 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.gson.Gson;
+import com.katsuro.alexey.forscand.UpdateUIListener;
 import com.katsuro.alexey.forscand.activities.BuilderActivity;
 import com.katsuro.alexey.forscand.FileWriterReader;
 import com.katsuro.alexey.forscand.R;
 import com.katsuro.alexey.forscand.StorehouseView;
 import com.katsuro.alexey.forscand.commands.Command;
-import com.katsuro.alexey.forscand.commands.MoveAlongTrail;
 import com.katsuro.alexey.forscand.commands.MoveCommand;
+import com.katsuro.alexey.forscand.commands.RobotCommand;
+import com.katsuro.alexey.forscand.commands.TakeBoxCommand;
+import com.katsuro.alexey.forscand.commands.PutBoxCommand;
+import com.katsuro.alexey.forscand.model.Box;
 import com.katsuro.alexey.forscand.model.Gate;
 import com.katsuro.alexey.forscand.model.Map;
 import com.katsuro.alexey.forscand.model.Robot;
 import com.katsuro.alexey.forscand.model.Trail;
 import com.katsuro.alexey.forscand.model.Wall;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by alexey on 4/19/18.
@@ -117,19 +125,68 @@ public class MainFragment extends Fragment  {
 
     }
 
-    private synchronized void updateUI(){
-        mStorehouseView.invalidate();
-    }
 
     private void start() {
-        Gate gateStart = mMap.getGateList().get(0);
-        Gate gateEnd = mMap.getGateList().get(1);
-        Robot robot = mStorehouseView.getRobotList().get(0);
-        Trail trail = getTrail(gateStart.getPosition(), gateEnd.getPosition());
-        Command command = new MoveAlongTrail(robot, trail, mStorehouseView, new Handler());
-        robot.addCommand(command);
+        final Gate gateStart = mMap.getGateList().get(0);
+        final Gate gateEnd = mMap.getGateList().get(1);
+        final Robot robot = mStorehouseView.getRobotList().get(0);
+        final List<Command> commands = new LinkedList<>();
+        final Handler handler = new Handler();
+        final UpdateUIListener listener = new UpdateUIListener() {
+            @Override
+            public void onUpdateUI(final Rect rect) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mStorehouseView.invalidate(rect);
+                    }
+                });
+            }
+        };
+        final List<Box> boxes = new LinkedList<>();
+        for (Box box : mMap.getBoxList())
+        boxes.addAll(mMap.getBoxList());
+
+        Command command = new RobotCommand(robot,listener) {
+            @Override
+            public void execute() {
+                while (boxes.size() > 0) {
+                    Box box = getNearestBox(mRobot.getPosition(), boxes);
+                    Command moveToNearestBox = new MoveCommand(mRobot, box.getPosition(), listener);
+                    moveToNearestBox.execute();
+                    Command takeBox = new TakeBoxCommand(mRobot,box);
+                    takeBox.execute();
+                    Command moveToEnd = new MoveCommand(mRobot, gateEnd.getPosition(), listener);
+                    moveToEnd.execute();
+                    Command putBox = new PutBoxCommand(mRobot);
+                    putBox.execute();
+                    boxes.remove(box);
+                }
+                Command moveHome = new MoveCommand(robot, gateStart.getPosition(), listener);
+                moveHome.execute();
+            }
+        };
 
 
+
+        commands.add(command);
+
+        robot.addCommands(commands);
+    }
+
+    private Box getNearestBox(PointF position, List<Box> boxes) {
+        Box nearest = null;
+        float minLength=-1;
+        for(Box box : boxes){
+            float xlength =Math.abs(position.x-box.getPosition().x);
+            float ylength =Math.abs(position.y-box.getPosition().y);
+            float lenght = (float) Math.sqrt(xlength*xlength+ylength*ylength);
+            if(minLength<0 || lenght<minLength){
+                minLength=lenght;
+                nearest = box;
+            }
+        }
+        return nearest;
     }
 
     private Trail getTrail(PointF start, PointF end) {
