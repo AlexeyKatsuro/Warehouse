@@ -1,24 +1,36 @@
 package com.katsuro.alexey.forscand.model;
 
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.PointF;
+
+import com.katsuro.alexey.forscand.buildModes.BuildMode;
 
 /**
  * Created by alexey on 4/19/18.
  */
 
-public class Wall {
-    PointF start;
-    PointF stop;
+public class Wall implements Drawable{
+    private PointF start;
+    private PointF stop;
+    private transient Paint mPaint;
+
 
     public Wall() {
+        mPaint = new Paint();
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeWidth(3);
+
     }
 
     public Wall(PointF start, PointF stop) {
+        this();
         this.start = start;
         this.stop = stop;
     }
 
     public Wall(float startX, float startY, float stopX, float stopY){
+        this();
         start = new PointF(startX,startY);
         stop = new PointF(stopX,stopY);
 
@@ -62,4 +74,29 @@ public class Wall {
         stop = new PointF(stopX,stopY);
     }
 
+    @Override
+    public void draw(Canvas canvas) {
+        canvas.drawLine(
+                BuildMode.convertDpToPixel(getStartX()),
+                BuildMode.convertDpToPixel(getStartY()),
+                BuildMode.convertDpToPixel(getStopX()),
+                BuildMode.convertDpToPixel(getStopY()),
+                mPaint);
+    }
+
+    public Paint getPaint() {
+        return mPaint;
+    }
+
+    public void setPaint(Paint paint) {
+        mPaint = paint;
+    }
+
+    @Override
+    public String toString() {
+        return "Wall{" +
+                "start=" + start +
+                ", stop=" + stop +
+                '}';
+    }
 }
