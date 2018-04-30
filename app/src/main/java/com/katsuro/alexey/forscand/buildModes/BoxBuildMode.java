@@ -35,16 +35,19 @@ public class BoxBuildMode extends BuildMode {
                 Log.d(TAG, "OnTouch");
                 StorehouseView view = (StorehouseView) v;
                 Log.d(TAG, String.format("x: %f, y: %f", event.getX(), event.getY()));
-                float x = roundToScale(event.getX(), mMap.getScale(), false)+mMap.getScale()/2;
-                float y = roundToScale(event.getY(), mMap.getScale(), false)+mMap.getScale()/2;
-
+                float pxScale= mMap.getPxScale();
+                float dpScale= mMap.getDpScale();
+                float x = roundToScale(event.getX(), pxScale, false)+pxScale/2;
+                float y = roundToScale(event.getY(), pxScale, false)+pxScale/2;
+                x = convertPixelsToDp(x);
+                y = convertPixelsToDp(y);
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         Log.d(TAG, "ACTION_DOWN");
                         mCurrentBox = new Box();
-                        mCurrentBox.setWidth(mMap.getScale());
-                        mCurrentBox.setHeight(mMap.getScale());
+                        mCurrentBox.setWidth(dpScale);
+                        mCurrentBox.setHeight(dpScale);
                         mCurrentBox.setPosition(x, y);
                         mMap.getBoxList().add(mCurrentBox);
                         view.invalidate();

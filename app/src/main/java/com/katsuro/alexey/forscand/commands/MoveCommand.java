@@ -25,7 +25,7 @@ public class MoveCommand extends RobotCommand {
     protected PointF mEnd;
     protected PointF mStart;
     private List<PointF> mBetweenPoints;
-    private float speed = 2; // width/sec
+    private float speed = 5; // width/sec
     private float stepsInWidth = 20;
 
 

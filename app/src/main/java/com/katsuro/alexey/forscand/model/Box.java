@@ -6,6 +6,8 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
 
+import com.katsuro.alexey.forscand.buildModes.BuildMode;
+
 /**
  * Created by alexey on 4/20/18.
  */
@@ -16,7 +18,7 @@ public class Box implements Drawable{
     protected float width;
     protected float height;
     protected transient Paint mPaint;
-    protected float margin = 8;
+    protected float margin = 5;
 
     public Box() {
         init();
@@ -27,7 +29,7 @@ public class Box implements Drawable{
         mPaint.setColor(Color.RED);
     }
 
-    public Box(PointF position, int width, int height) {
+    public Box(PointF position, float width, float height) {
         this();
         mPosition = position;
         this.width = width;
@@ -72,7 +74,7 @@ public class Box implements Drawable{
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(float width) {
         this.width = width;
     }
 
@@ -80,7 +82,7 @@ public class Box implements Drawable{
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(float height) {
         this.height = height;
     }
 
@@ -99,7 +101,10 @@ public class Box implements Drawable{
         rect.top+=margin;
         rect.left+=margin;
         rect.right-=margin;
-
+        rect.bottom = (int) BuildMode.convertDpToPixel(rect.bottom);
+        rect.top = (int) BuildMode.convertDpToPixel(rect.top);
+        rect.left = (int) BuildMode.convertDpToPixel(rect.left);
+        rect.right = (int) BuildMode.convertDpToPixel(rect.right);
         canvas.drawRect(rect,mPaint);
     }
 

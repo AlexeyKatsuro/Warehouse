@@ -6,6 +6,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 
+import com.katsuro.alexey.forscand.buildModes.BuildMode;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -80,8 +82,11 @@ public class Trail implements Drawable {
             PointF startPoint = mPointList.get(i);
             PointF endPoint = mPointList.get(i+1);
 
-            canvas.drawLine(startPoint.x,startPoint.y,
-                    endPoint.x,endPoint.y,p);
+            canvas.drawLine(
+                    BuildMode.convertDpToPixel(startPoint.x),
+                    BuildMode.convertDpToPixel(startPoint.y),
+                    BuildMode.convertDpToPixel(endPoint.x),
+                    BuildMode.convertDpToPixel(endPoint.y),p);
         }
 
     }

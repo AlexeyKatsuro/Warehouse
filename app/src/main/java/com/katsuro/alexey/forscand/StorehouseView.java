@@ -46,8 +46,8 @@ public class StorehouseView extends View {
             return;
         }
 
-        if(mMap.getScale()>=5) {
-            drawGrid(canvas, mMap.getScale());
+        if(mMap.getPxScale()>=5) {
+            drawGrid(canvas, mMap.getPxScale());
         }
 
         for(Robot robot : mRobotList){
@@ -62,9 +62,9 @@ public class StorehouseView extends View {
 
     }
 
-    private void drawGrid(Canvas canvas, int scale) {
-        int w = canvas.getWidth();
-        int h = canvas.getHeight();
+    private void drawGrid(Canvas canvas, float scale) {
+        float w = canvas.getWidth();
+        float h = canvas.getHeight();
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(1);

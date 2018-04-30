@@ -4,6 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 
+import com.katsuro.alexey.forscand.buildModes.BuildMode;
+
 /**
  * Created by alexey on 4/19/18.
  */
@@ -75,10 +77,10 @@ public class Wall implements Drawable{
     @Override
     public void draw(Canvas canvas) {
         canvas.drawLine(
-                getStartX(),
-                getStartY(),
-                getStopX(),
-                getStopY(),
+                BuildMode.convertDpToPixel(getStartX()),
+                BuildMode.convertDpToPixel(getStartY()),
+                BuildMode.convertDpToPixel(getStopX()),
+                BuildMode.convertDpToPixel(getStopY()),
                 mPaint);
     }
 

@@ -36,9 +36,14 @@ public class GateBuildMode extends BuildMode {
                 Log.i(TAG, "OnTouch");
                 StorehouseView view = (StorehouseView) v;
                 Log.i(TAG, String.format("x: %f, y: %f", event.getX(), event.getY()));
+                float pxScale= mMap.getPxScale();
+                float dpScale= mMap.getDpScale();
                 PointF point = new PointF();
-                point.x = roundToScale(event.getX(), mMap.getScale(), false)+mMap.getScale()/2;
-                point.y = roundToScale(event.getY(), mMap.getScale(), false)+mMap.getScale()/2;
+                point.x = roundToScale(event.getX(), pxScale, false)+pxScale/2;
+                point.y = roundToScale(event.getY(), pxScale, false)+pxScale/2;
+
+                point.x = convertPixelsToDp(point.x);
+                point.y = convertPixelsToDp(point.y);
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
@@ -46,7 +51,7 @@ public class GateBuildMode extends BuildMode {
                         mCurrentGate = new Gate();
                         mMap.getGateList().add(mCurrentGate);
                         mCurrentGate.setPosition(point);
-                        mCurrentGate.setWidth(mMap.getScale());
+                        mCurrentGate.setWidth(dpScale);
                         return true;
 
                     case MotionEvent.ACTION_MOVE:

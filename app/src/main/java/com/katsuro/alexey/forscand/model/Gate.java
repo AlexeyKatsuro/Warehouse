@@ -6,6 +6,8 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
 
+import com.katsuro.alexey.forscand.buildModes.BuildMode;
+
 /**
  * Created by alexey on 4/22/18.
  */
@@ -34,18 +36,19 @@ public class Gate implements Drawable{
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawLine(mPosition.x-width/2,mPosition.y-width/2,
-                mPosition.x+width/2,mPosition.y-width/2,mPaintLine);
-        canvas.drawLine(mPosition.x-width/2,mPosition.y+width/2,
-                mPosition.x+width/2,mPosition.y+width/2,mPaintLine);
-    }
+        canvas.drawLine(
+                BuildMode.convertDpToPixel(mPosition.x-width/2),
+                BuildMode.convertDpToPixel(mPosition.y-width/2),
+                BuildMode.convertDpToPixel(mPosition.x+width/2),
+                BuildMode.convertDpToPixel(mPosition.y-width/2),
+                mPaintLine);
 
-    public Rect getRect(){
-        return new Rect(
-                (int) ((int) mPosition.x),
-                (int) mPosition.y,
-                (int) (mPosition.x+width/2),
-                (int) (mPosition.y+width));
+        canvas.drawLine(
+                BuildMode.convertDpToPixel(mPosition.x-width/2),
+                BuildMode.convertDpToPixel(mPosition.y+width/2),
+                BuildMode.convertDpToPixel(mPosition.x+width/2),
+                BuildMode.convertDpToPixel(mPosition.y+width/2),
+                mPaintLine);
     }
 
     public PointF getPosition() {

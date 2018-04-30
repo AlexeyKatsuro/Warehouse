@@ -3,6 +3,7 @@ package com.katsuro.alexey.forscand.model;
 import android.graphics.Canvas;
 
 import com.google.gson.annotations.SerializedName;
+import com.katsuro.alexey.forscand.buildModes.BuildMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public class Map implements Drawable {
     @SerializedName("gateList")
     private List<Gate> mGateList = new ArrayList<>();
 
-    private int mScale = 50;
+    private float mScale = 33.33332f;
 
     public List<Wall> getWallList() {
         return mWallList;
@@ -65,8 +66,12 @@ public class Map implements Drawable {
 
     }
 
-    public int getScale() {
+    public float getDpScale() {
         return mScale;
+    }
+
+    public float getPxScale() {
+        return BuildMode.convertDpToPixel(mScale);
     }
 
 }

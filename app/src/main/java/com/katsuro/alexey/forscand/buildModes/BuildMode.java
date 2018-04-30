@@ -1,6 +1,8 @@
 package com.katsuro.alexey.forscand.buildModes;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.util.DisplayMetrics;
 import android.view.View;
 
 import com.katsuro.alexey.forscand.model.Map;
@@ -42,15 +44,28 @@ public abstract class BuildMode {
 
     public abstract List<?> getObjectList();
 
-    protected int roundToScale(float value, int scale, boolean sumRemainder) {
+    protected int roundToScale(float value, float scale, boolean sumRemainder) {
         value = Math.round(value);
-        int r = (int) value % scale;
+        int r = (int) (value % (int)scale);
         int result = (int) (value - r);
         if (sumRemainder) {
             result += r >= scale / 2 ? scale : 0;
         }
         return result;
 
+    }
+
+    public static float convertDpToPixel(float dp){
+        DisplayMetrics metrics = Resources.getSystem ().getDisplayMetrics ();
+        float px = dp * ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        return px;
+    }
+
+
+    public static float convertPixelsToDp(float px){
+        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics ();
+        float dp = px / ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        return dp;
     }
 }
 

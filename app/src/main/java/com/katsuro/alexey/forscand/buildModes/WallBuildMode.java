@@ -38,10 +38,13 @@ public class WallBuildMode extends BuildMode {
             public boolean onTouch(View v, MotionEvent event) {
                 Log.i(TAG, "OnTouch");
                 StorehouseView view = (StorehouseView) v;
+                float pxScale= mMap.getPxScale();
+                float dpScale= mMap.getDpScale();
                 Log.i(TAG, String.format("x: %f, y: %f", event.getX(), event.getY()));
-                float x = roundToScale(event.getX(), mMap.getScale(), true);
-                float y = roundToScale(event.getY(), mMap.getScale(), true);
-
+                float x = roundToScale(event.getX(), pxScale, true);
+                float y = roundToScale(event.getY(), pxScale, true);
+                x = convertPixelsToDp(x);
+                y = convertPixelsToDp(y);
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         Log.i(TAG, "ACTION_DOWN");
