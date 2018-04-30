@@ -53,6 +53,14 @@ public class MainFragment extends Fragment  {
     private FileWriterReader mFileWriterReader;
     private String mDefaultMapFileName = "MapDefault.txt";
 
+    public Robot getRobots(Gate gateStart) {
+        List<Robot> robots = mStorehouseView.getRobotList();
+        if(robots.size()==0){
+            robots.add(new Robot(gateStart,mMap));
+        }
+        return robots.get(0);
+    }
+
     public interface callBacks{
 
     }
@@ -82,7 +90,7 @@ public class MainFragment extends Fragment  {
         mStorehouseView = view.findViewById(R.id.warehouse_view);
         mStorehouseView.setMap(mMap);
 
-        if(mMap.getGateList().size()>=2) {
+        if(mMap != null && mMap.getGateList().size()>=2) {
             Gate gateStart = mMap.getGateList().get(0);
             Gate gateEnd = mMap.getGateList().get(1);
 
@@ -109,6 +117,7 @@ public class MainFragment extends Fragment  {
 
             case R.id.start:
                 Log.i(TAG,getString(R.string.start));
+
                 start();
                 return true;
             case R.id.builder:
@@ -116,9 +125,6 @@ public class MainFragment extends Fragment  {
                 Intent intent = new Intent(getActivity(),BuilderActivity.class);
                 startActivityForResult(intent,REQUEST_MAP);
                 return true;
-            case R.id.settings:
-                Log.i(TAG,getString(R.string.settings));
-
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -127,9 +133,12 @@ public class MainFragment extends Fragment  {
 
 
     private void start() {
+        if(!(mMap!=null && mMap.getGateList().size()>=2)){
+            return;
+        }
         final Gate gateStart = mMap.getGateList().get(0);
         final Gate gateEnd = mMap.getGateList().get(1);
-        final Robot robot = mStorehouseView.getRobotList().get(0);
+        final Robot robot = getRobots(gateStart);
         final List<Command> commands = new LinkedList<>();
         final Handler handler = new Handler();
         final UpdateUIListener listener = new UpdateUIListener() {
@@ -226,8 +235,7 @@ public class MainFragment extends Fragment  {
 
     }
 
-    public boolean isLinePartsIntersected(PointF a, PointF b, PointF c, PointF d)
-    {
+    public boolean isLinePartsIntersected(PointF a, PointF b, PointF c, PointF d) {
         double common = (b.x - a.x)*(d.y - c.y) - (b.y- a.y)*(d.x - c.x);
         if (common == 0) return false;
         double rH = (a.y - c.y)*(d.x - c.x) - (a.x - c.x)*(d.y - c.y);

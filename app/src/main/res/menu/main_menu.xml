@@ -10,8 +10,6 @@
     <item android:id="@+id/builder"
         android:title="@string/builder"
         app:showAsAction="never"/>
-    <item android:id="@+id/settings"
-        android:title="@string/settings"
-        app:showAsAction="never"/>
+
 
 </menu>

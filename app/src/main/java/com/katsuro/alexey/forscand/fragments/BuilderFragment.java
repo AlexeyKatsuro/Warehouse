@@ -102,20 +102,20 @@ public class BuilderFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.wall_mode:
                 Log.d(TAG, getString(R.string.wall_mode));
-                changeMode(new WallBuildMode(getActivity(),mMap));
+                changeMode(new WallBuildMode(getActivity(), mMap));
                 item.setChecked(true);
                 updateUI();
                 return true;
             case R.id.box_mode:
                 Log.d(TAG, getString(R.string.box_mode));
-                changeMode(new BoxBuildMode(getActivity(),mMap));
+                changeMode(new BoxBuildMode(getActivity(), mMap));
                 item.setChecked(true);
                 updateUI();
                 return true;
             case R.id.gate_input:
                 Log.d(TAG, getString(R.string.gate_mode));
                 item.setChecked(true);
-                changeMode(new GateBuildMode(getActivity(),mMap));
+                changeMode(new GateBuildMode(getActivity(), mMap));
                 updateUI();
                 return true;
 
@@ -139,6 +139,7 @@ public class BuilderFragment extends Fragment {
                 mStorehouseView.setMap(mMap);
                 mBuildMode.setMap(mMap);
                 mStorehouseView.invalidate();
+                return true;
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -153,8 +154,10 @@ public class BuilderFragment extends Fragment {
         Map map =null;
         if (stringJSON != null) {
             map = new Gson().fromJson(stringJSON, Map.class);
-            Log.i(TAG,mMap.toString());
+        }
 
+        if(map==null){
+            map= new Map();
         }
         return map;
     }
