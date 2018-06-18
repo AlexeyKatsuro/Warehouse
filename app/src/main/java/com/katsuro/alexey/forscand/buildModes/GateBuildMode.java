@@ -48,10 +48,12 @@ public class GateBuildMode extends BuildMode {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         Log.i(TAG, "ACTION_DOWN");
-                        mCurrentGate = new Gate();
+                        mCurrentGate = new Gate(point,mMap);
                         mMap.getGateList().add(mCurrentGate);
-                        mCurrentGate.setPosition(point);
-                        mCurrentGate.setWidth(dpScale);
+                        if(mMap.getGateList().size()>2){
+                            mMap.getGateList().remove(0);
+                        }
+                        view.invalidate();
                         return true;
 
                     case MotionEvent.ACTION_MOVE:

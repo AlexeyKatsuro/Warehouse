@@ -12,6 +12,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.katsuro.alexey.forscand.buildModes.BuildMode;
 import com.katsuro.alexey.forscand.model.Box;
 import com.katsuro.alexey.forscand.model.Map;
 import com.katsuro.alexey.forscand.model.Robot;
@@ -46,7 +47,7 @@ public class StorehouseView extends View {
             return;
         }
 
-        if(mMap.getPxScale()>=5) {
+        if(mMap.getDpScale()>=3) {
             drawGrid(canvas, mMap.getPxScale());
         }
 
@@ -63,13 +64,15 @@ public class StorehouseView extends View {
     }
 
     private void drawGrid(Canvas canvas, float scale) {
-        float w = canvas.getWidth();
-        float h = canvas.getHeight();
+        float w = BuildMode.convertPixelsToDp(canvas.getWidth());
+        float h = BuildMode.convertPixelsToDp(canvas.getHeight());
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(1);
         paint.setColor(Color.GRAY);
 
+        w = BuildMode.convertDpToPixel(w);
+        h = BuildMode.convertDpToPixel(h);
         for(int x = 0; x<w;x+=scale){
             canvas.drawLine(x,0,x,h,paint);
         }

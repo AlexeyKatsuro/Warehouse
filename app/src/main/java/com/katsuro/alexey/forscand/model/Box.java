@@ -18,7 +18,7 @@ public class Box implements Drawable{
     protected float width;
     protected float height;
     protected transient Paint mPaint;
-    protected float margin = 5;
+    protected float margin = 0;
 
     public Box() {
         init();
@@ -27,6 +27,7 @@ public class Box implements Drawable{
     protected void init() {
         mPaint = new Paint();
         mPaint.setColor(Color.RED);
+        setMargin(5);
     }
 
     public Box(PointF position, float width, float height) {
@@ -126,7 +127,7 @@ public class Box implements Drawable{
 
     @Override
     public String toString() {
-        return "Box{" +
+        return "box{" +
                 "mPosition=" + mPosition +
                 ", width=" + width +
                 ", height=" + height +

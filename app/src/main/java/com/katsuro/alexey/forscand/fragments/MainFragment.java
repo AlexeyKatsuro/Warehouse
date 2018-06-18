@@ -53,6 +53,7 @@ public class MainFragment extends Fragment  {
     private FileWriterReader mFileWriterReader;
     private String mDefaultMapFileName = "MapDefault.txt";
 
+
     public Robot getRobots(Gate gateStart) {
         List<Robot> robots = mStorehouseView.getRobotList();
         if(robots.size()==0){
@@ -60,11 +61,6 @@ public class MainFragment extends Fragment  {
         }
         return robots.get(0);
     }
-
-    public interface callBacks{
-
-    }
-
 
     public static MainFragment newInstance() {
         MainFragment fragment = new MainFragment();
@@ -77,7 +73,8 @@ public class MainFragment extends Fragment  {
         setHasOptionsMenu(true);
         mFileWriterReader = new FileWriterReader(getActivity());
 
-        String gsonString = mFileWriterReader.readFromFile(mDefaultMapFileName);
+        String gsonString = mFileWriterReader.readFromAssets(mDefaultMapFileName);
+
         if(gsonString!=null) {
             mMap = mGson.fromJson(gsonString, Map.class);
         }
@@ -92,11 +89,8 @@ public class MainFragment extends Fragment  {
 
         if(mMap != null && mMap.getGateList().size()>=2) {
             Gate gateStart = mMap.getGateList().get(0);
-            Gate gateEnd = mMap.getGateList().get(1);
 
-            Robot robot= new Robot(gateStart, mMap);
-            mStorehouseView.getRobotList().clear();
-            mStorehouseView.getRobotList().add(robot);
+            Robot robot= getRobots(gateStart);
         }
 
         return view;
@@ -161,6 +155,12 @@ public class MainFragment extends Fragment  {
             public void execute() {
                 while (boxes.size() > 0) {
                     Box box = getNearestBox(mRobot.getPosition(), boxes);
+
+                    if(isLinePartsIntersected(mRobot.getPosition(),box.getPosition(),mMap.getWallList())||
+                            isLinePartsIntersected(box.getPosition(),gateEnd.getPosition(),mMap.getWallList())){
+                        boxes.remove(box);
+                        continue;
+                    }
                     Command moveToNearestBox = new MoveCommand(mRobot, box.getPosition(), listener);
                     moveToNearestBox.execute();
                     Command takeBox = new TakeBoxCommand(mRobot,box);
@@ -182,6 +182,8 @@ public class MainFragment extends Fragment  {
 
         robot.addCommands(commands);
     }
+
+
 
     private Box getNearestBox(PointF position, List<Box> boxes) {
         Box nearest = null;
@@ -221,6 +223,8 @@ public class MainFragment extends Fragment  {
             String gsonString = bundle.getString(BuilderFragment.EXTRA_MAP,null);
             mMap = mGson.fromJson(gsonString,Map.class);
             mStorehouseView.setMap(mMap);
+            mStorehouseView.getRobotList().clear();
+            Robot robot= getRobots(mMap.getGateList().get(0));
             mStorehouseView.invalidate();
         }
     }
@@ -248,6 +252,15 @@ public class MainFragment extends Fragment  {
             return true;
         else
             return false;
+    }
+
+    public boolean isLinePartsIntersected(PointF start, PointF end, List<Wall> walls){
+        for (Wall wall : walls){
+            if(isLinePartsIntersected(start,end,wall.getStart(),wall.getStop())){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

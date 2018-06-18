@@ -26,8 +26,7 @@ public class Robot extends Box{
     public Robot(Gate gate,Map  map) {
         super(gate.getPosition(), map.getDpScale(), map.getDpScale());
         mMap=map;
-        Handler handler = new Handler();
-        mCommandHandler = new CommandHandler(handler);
+        mCommandHandler = new CommandHandler();
         mCommandHandler.start();
         mCommandHandler.getLooper();
         Log.d(TAG, "Background thread started");
