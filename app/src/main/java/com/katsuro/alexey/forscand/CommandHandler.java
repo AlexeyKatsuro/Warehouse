@@ -20,11 +20,9 @@ public class CommandHandler extends HandlerThread {
 
     private static final String TAG = CommandHandler.class.getSimpleName();
     private Handler mRequestHandler;
-    private Handler mResponseHandler;
 
-    public CommandHandler(Handler handler) {
+    public CommandHandler() {
         super(TAG);
-        mResponseHandler = handler;
     }
 
     @SuppressLint("HandlerLeak")
@@ -46,7 +44,9 @@ public class CommandHandler extends HandlerThread {
         Log.d(TAG, "Got a Command: ");
         if(command==null){
         } else {
-            mRequestHandler.obtainMessage(MESSAGE_EXECUTE,command).sendToTarget();
+            if(mRequestHandler!=null) {
+                mRequestHandler.obtainMessage(MESSAGE_EXECUTE, command).sendToTarget();
+            }
         }
     }
 

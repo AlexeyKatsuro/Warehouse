@@ -1,21 +1,19 @@
 package com.katsuro.alexey.forscand;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.os.Environment;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 
 /**
  * Created by alexey on 4/20/18.
@@ -24,11 +22,14 @@ import java.io.OutputStreamWriter;
 public class FileWriterReader {
 
     public static final String TAG = FileWriterReader.class.getSimpleName();
+    private static final String MAPS_FOLDER = "saved_maps";
+    private AssetManager mAssets;
 
     private Context  mContext;
 
     public FileWriterReader(Context context) {
         mContext = context;
+        mAssets = mContext.getAssets();
     }
 
     public void writeToFile(String data, String fileName) {
@@ -84,10 +85,32 @@ public class FileWriterReader {
         return false;
     }
 
+    public String readFromAssets(String filename) {
+        Log.d(TAG, "readFromAssets");
+        String assetPath = MAPS_FOLDER + "/" + filename;
+        Log.d(TAG, "assetPath: " + assetPath);
+        ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
+        StringBuilder out = new StringBuilder();
+        try {
+            InputStream mapData = mAssets.open(assetPath);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(mapData));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                out.append(line);
+            }
+            System.out.println(out.toString());   //Prints the string content read from input stream
+            reader.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return out.toString();
+    }
+
     public File getStorageDir(Context context,String fileName) {
 
-        String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString();
-        File myDir = new File(root + "/saved_maps");
+        String root = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString();
+        File myDir = new File(root + "/" + MAPS_FOLDER);
         myDir.mkdirs();
             if (myDir == null) {
                 return null;

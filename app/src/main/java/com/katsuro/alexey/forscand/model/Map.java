@@ -22,7 +22,7 @@ public class Map implements Drawable {
     @SerializedName("gateList")
     private List<Gate> mGateList = new ArrayList<>();
 
-    private float mScale = 33.33332f;
+    private float mScale = 30f;
 
     public List<Wall> getWallList() {
         return mWallList;
@@ -55,12 +55,12 @@ public class Map implements Drawable {
             box.draw(canvas);
         }
 
-        for(Wall wall: mWallList){
-            wall.draw(canvas);
-        }
-
         for (Gate gate: mGateList){
             gate.draw(canvas);
+        }
+
+        for(Wall wall: mWallList){
+            wall.draw(canvas);
         }
 
 
